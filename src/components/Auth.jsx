@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
 import Logo from './Logo'
+import Waves from './Waves'
 
 export default function Auth({ hasInvite }) {
   const [mode, setMode] = useState('login') // 'login' | 'signup'
@@ -50,6 +51,7 @@ export default function Auth({ hasInvite }) {
 
   return (
     <div className="auth-page">
+      <Waves />
       <form className="auth-card" onSubmit={submit}>
         <div className="auth-brand">
           <Logo size={44} />

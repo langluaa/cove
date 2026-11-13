@@ -16,6 +16,13 @@
   --danger: #e45f7a;
   --sand: #f3dcb2;
   --logo-bg: #0d1b26;
+  --coral: #ff7a59;
+  --violet: #8b7cf8;
+  --sky: #4aa3df;
+  --grad: linear-gradient(135deg, #2bd4be 0%, #4aa3df 55%, #8b7cf8 100%);
+  --grad-warm: linear-gradient(135deg, #ff7a59, #f2c14e);
+  --glow: 0 0 0 1px rgba(127, 224, 211, 0.35), 0 8px 28px rgba(43, 179, 163, 0.35);
+  --pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   --radius: 10px;
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Outfit', var(--font);
@@ -375,6 +382,147 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); }
 .add-friend { max-width: 560px; display: flex; flex-direction: column; gap: 10px; }
 .add-friend h3 { font: 600 18px var(--font-display); margin: 0; }
 .add-friend p { margin: 0; }
+
+/* ===================== Pop layer ===================== */
+
+/* Buttons: gradient, lift, glow */
+.btn { transition: background 0.15s, transform 0.15s var(--pop), box-shadow 0.2s; }
+.btn:active:not(:disabled) { transform: scale(0.97); }
+.btn.primary { background: var(--grad); color: #04201d; background-size: 140% 140%; background-position: 0% 50%; transition: background-position 0.4s, transform 0.15s var(--pop), box-shadow 0.2s; }
+.btn.primary:hover:not(:disabled) { background: var(--grad); background-size: 140% 140%; background-position: 100% 50%; box-shadow: var(--glow); transform: translateY(-1px); }
+.btn.danger:hover:not(:disabled) { box-shadow: 0 8px 24px rgba(228, 95, 122, 0.35); transform: translateY(-1px); }
+.link { color: #8ff0e2; }
+
+/* Login page: gradient title + animated waves */
+.auth-page { position: relative; overflow: hidden; }
+.auth-card { position: relative; z-index: 1; backdrop-filter: blur(6px); background: rgba(13, 27, 38, 0.86); animation: rise 0.5s var(--pop) both; }
+.auth-card::before {
+  content: ''; position: absolute; inset: -1px; border-radius: 16px; padding: 1px; pointer-events: none;
+  background: linear-gradient(160deg, rgba(43, 212, 190, 0.6), transparent 40%, transparent 60%, rgba(139, 124, 248, 0.5));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.auth-brand h1 { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.auth-brand svg { animation: bob 4s ease-in-out infinite; }
+.waves { position: absolute; left: 0; right: 0; bottom: 0; height: 24vh; min-height: 120px; pointer-events: none; -webkit-mask: linear-gradient(to bottom, #000 30%, transparent); mask: linear-gradient(to bottom, #000 30%, transparent); }
+.waves svg { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; }
+.waves .w1 { animation: drift 18s linear infinite; opacity: 0.16; }
+.waves .w2 { animation: drift 12s linear infinite reverse; opacity: 0.12; bottom: -18px; }
+.waves .w3 { animation: drift 24s linear infinite; opacity: 0.1; bottom: -36px; }
+.bubbles span {
+  position: absolute; bottom: -20px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(127,224,211,0.15));
+  animation: float-up linear infinite;
+}
+
+/* Server rail: bouncy icons, gradient active ring, tooltip-ish scale */
+.rail-icon, .rail-home { transition: border-radius 0.25s var(--pop), background 0.2s, transform 0.2s var(--pop), box-shadow 0.25s; }
+.rail-icon:hover, .rail-home:hover { transform: translateY(-2px) scale(1.06); }
+.rail-icon:active, .rail-home:active { transform: scale(0.94); }
+.rail-icon.active, .rail-home.active {
+  box-shadow: 0 0 0 3px var(--bg-0), 0 0 0 5px #2bd4be, 0 6px 22px rgba(43, 212, 190, 0.45);
+}
+.rail-icon.add { border: 2px dashed rgba(43, 179, 163, 0.5); background: transparent; }
+.rail-icon.add:hover { background: var(--grad); border-color: transparent; color: #04201d; transform: rotate(90deg) scale(1.06); }
+.rail-badge, .badge { animation: pop-in 0.35s var(--pop); background: var(--grad-warm); color: #2a1206; }
+.rail-sep { background: var(--grad); opacity: 0.5; }
+
+/* Sidebars */
+.server-head, .main-head { position: relative; }
+.server-head::after, .main-head::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(43, 212, 190, 0.45), rgba(139, 124, 248, 0.35), transparent);
+}
+.channel { position: relative; transition: background 0.15s, transform 0.15s; }
+.channel:hover { transform: translateX(2px); }
+.channel.active { background: linear-gradient(90deg, rgba(43, 212, 190, 0.18), rgba(139, 124, 248, 0.08)); }
+.channel.active::before {
+  content: ''; position: absolute; left: -8px; top: 8px; bottom: 8px; width: 4px;
+  border-radius: 0 4px 4px 0; background: var(--grad); animation: grow 0.25s var(--pop);
+}
+.channel.active .hash { color: #7fe0d3; }
+.unread-dot { background: #2bd4be; box-shadow: 0 0 0 0 rgba(43, 212, 190, 0.7); animation: pulse 1.8s infinite; }
+.user-panel { background: linear-gradient(180deg, #0a1720, #071119); }
+.menu { animation: drop 0.18s var(--pop); transform-origin: top; }
+
+/* Avatars: online glow */
+.presence.on { background: #3ee8a0; box-shadow: 0 0 8px rgba(62, 232, 160, 0.8); }
+.avatar { transition: transform 0.2s var(--pop); }
+.msg:hover .avatar, .member:hover .avatar, .friend-row:hover .avatar { transform: scale(1.06); }
+
+/* Chat area: soft ocean glow in the background */
+.main {
+  background:
+    radial-gradient(900px 420px at 100% 0%, rgba(139, 124, 248, 0.07), transparent 60%),
+    radial-gradient(800px 500px at 0% 100%, rgba(43, 212, 190, 0.07), transparent 60%),
+    var(--bg-2);
+}
+.intro-hash {
+  background: var(--grad); color: #04201d; font-weight: 700;
+  box-shadow: 0 10px 30px rgba(43, 179, 163, 0.35); animation: bob 5s ease-in-out infinite;
+}
+.channel-intro h3 { background: linear-gradient(90deg, #fff, #9ff3e6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.day-divider span { padding: 2px 10px; border-radius: 999px; background: var(--bg-3); color: var(--text-2); }
+.msg { animation: msg-in 0.28s var(--pop) both; border-radius: 0; }
+.msg:hover, .msg.editing { background: linear-gradient(90deg, rgba(43, 212, 190, 0.06), rgba(255, 255, 255, 0.02)); }
+.msg-author { transition: filter 0.15s; }
+.msg-author:hover { filter: brightness(1.2); text-decoration: underline; text-underline-offset: 3px; }
+.msg-actions { animation: pop-in 0.18s var(--pop); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); }
+
+/* Composer: glowing focus + gradient send button */
+.composer { border: 1px solid transparent; transition: border-color 0.2s, box-shadow 0.25s; }
+.composer:focus-within { border-color: rgba(43, 212, 190, 0.55); box-shadow: 0 0 0 4px rgba(43, 212, 190, 0.12), 0 10px 30px rgba(0, 0, 0, 0.25); }
+.send-btn { background: var(--grad); color: #04201d; transition: transform 0.2s var(--pop), box-shadow 0.2s; }
+.send-btn:hover:not(:disabled) { transform: scale(1.08) rotate(-12deg); box-shadow: var(--glow); }
+.send-btn:active:not(:disabled) { transform: scale(0.9) translateX(3px); }
+
+/* Friends page */
+.friends-tabs button { transition: background 0.15s, color 0.15s, transform 0.15s var(--pop); }
+.friends-tabs button:active { transform: scale(0.95); }
+.friends-tabs button.add { background: var(--grad); color: #04201d; }
+.friends-tabs button.add.on { background: transparent; color: #8ff0e2; box-shadow: inset 0 0 0 1px #2bd4be; }
+.friend-row { animation: msg-in 0.3s var(--pop) both; transition: background 0.15s; }
+.round-btn { transition: transform 0.2s var(--pop), background 0.15s, color 0.15s; }
+.round-btn:hover { transform: scale(1.12); }
+.round-btn.ok:hover { background: rgba(62, 232, 160, 0.15); }
+.round-btn.no:hover { background: rgba(228, 95, 122, 0.15); }
+.callout { animation: rise 0.4s var(--pop) both; }
+
+/* Modals + toast */
+.modal { animation: pop-modal 0.28s var(--pop); }
+.modal-head h3 { background: linear-gradient(90deg, #fff, #9ff3e6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.swatch { transition: transform 0.2s var(--pop); }
+.swatch:hover { transform: scale(1.15); }
+.swatch.on { transform: scale(1.12); }
+.tabs button { transition: background 0.2s, color 0.2s; }
+.tabs button.on { background: var(--grad); color: #04201d; }
+.toast { animation: toast-in 0.35s var(--pop); background: linear-gradient(135deg, #e45f7a, #ff7a59); }
+.spinner { border-top-color: #2bd4be; border-right-color: #8b7cf8; }
+
+/* Scrollbars */
+* { scrollbar-width: thin; scrollbar-color: #24405a transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #24405a; border-radius: 10px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: #2bb3a3; background-clip: content-box; }
+::selection { background: rgba(43, 212, 190, 0.35); }
+
+/* Keyframes */
+@keyframes rise { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes float-up { from { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } to { transform: translateY(-110vh); opacity: 0; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.5); } }
+@keyframes grow { from { transform: scaleY(0); } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(43, 212, 190, 0.7); } 70% { box-shadow: 0 0 0 7px rgba(43, 212, 190, 0); } 100% { box-shadow: 0 0 0 0 rgba(43, 212, 190, 0); } }
+@keyframes drop { from { opacity: 0; transform: scaleY(0.85) translateY(-6px); } }
+@keyframes msg-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pop-modal { from { opacity: 0; transform: translateY(10px) scale(0.94); } }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 20px) scale(0.9); } }
+
+/* Respect people who turn off motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .waves, .bubbles { display: none; }
+}
 
 /* ---------- responsive ---------- */
 @media (max-width: 1000px) {

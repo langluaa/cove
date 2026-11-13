@@ -4,6 +4,7 @@ import { isConfigured } from './config'
 import Auth from './components/Auth'
 import Shell from './components/Shell'
 import Logo from './components/Logo'
+import Waves from './components/Waves'
 import { load, save } from './storage'
 
 // Invite links look like  https://site/cove/#/invite/abc12345
@@ -60,6 +61,7 @@ function Main() {
 function SetupNeeded() {
   return (
     <div className="auth-page">
+      <Waves />
       <div className="auth-card">
         <div className="auth-brand">
           <Logo size={44} />
