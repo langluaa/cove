@@ -1,6 +1,6 @@
 import Avatar, { displayName } from './Avatar'
 
-export default function MemberList({ members, online, ownerId, me, isOwner, onKick }) {
+export default function MemberList({ members, online, ownerId, me, isOwner, onKick, onMessage }) {
   const sorted = [...members].sort((a, b) => displayName(a.user).localeCompare(displayName(b.user)))
   const on = sorted.filter((m) => online.has(m.user.id))
   const off = sorted.filter((m) => !online.has(m.user.id))
@@ -14,8 +14,13 @@ export default function MemberList({ members, online, ownerId, me, isOwner, onKi
           ★
         </span>
       )}
+      {m.user.id !== me && (
+        <button className="icon-btn tiny member-act" onClick={() => onMessage(m.user.id)} title="Message" aria-label="Message">
+          💬
+        </button>
+      )}
       {isOwner && m.user.id !== me && (
-        <button className="icon-btn tiny member-kick" onClick={() => onKick(m)} title="Kick" aria-label="Kick member">
+        <button className="icon-btn tiny member-act" onClick={() => onKick(m)} title="Kick" aria-label="Kick member">
           ✕
         </button>
       )}

@@ -15,6 +15,7 @@ export default function ChannelSidebar({
   onLeave,
   onProfile,
   onSignOut,
+  homeList,
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
@@ -64,10 +65,13 @@ export default function ChannelSidebar({
         </div>
       ) : (
         <div className="server-head">
-          <div className="server-name static">Cove</div>
+          <div className="server-name static">Home</div>
         </div>
       )}
 
+      {homeList ? (
+        homeList
+      ) : (
       <div className="channel-list">
         {server && (
           <div className="section-label">
@@ -98,6 +102,7 @@ export default function ChannelSidebar({
           </div>
         ))}
       </div>
+      )}
 
       <div className="user-panel">
         <button className="user-chip" onClick={onProfile} title="Edit profile">

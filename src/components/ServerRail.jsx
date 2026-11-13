@@ -9,12 +9,19 @@ function initials(name) {
     .join('')
 }
 
-export default function ServerRail({ servers, activeId, onSelect, onAdd }) {
+export default function ServerRail({ servers, activeId, onSelect, onAdd, onHome, homeActive, homeBadge }) {
   return (
     <nav className="rail" aria-label="Servers">
-      <div className="rail-logo" title="Cove">
-        <Logo size={40} />
-      </div>
+      <button
+        className={'rail-home' + (homeActive ? ' active' : '')}
+        onClick={onHome}
+        title="Home: friends & messages"
+        aria-label="Home"
+        aria-current={homeActive ? 'true' : undefined}
+      >
+        <Logo size={48} />
+        {homeBadge > 0 && <span className="rail-badge">{homeBadge > 9 ? '9+' : homeBadge}</span>}
+      </button>
       <div className="rail-sep" />
       <div className="rail-list">
         {servers.map((s) => (

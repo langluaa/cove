@@ -14,9 +14,11 @@ A place for your people. Cove is a real-time chat app: create servers, invite fr
 - Edit and delete your own messages; owners can delete any message
 - Member list with online / offline status; owners can kick
 - Profiles with display name and color
+- Friends: add by username, accept or decline requests, see who's online
+- Direct messages with friends or anyone you share a server with, with unread dots
 - Works on phones
 
-**Coming next:** DMs and friends, roles and permissions, image uploads, reactions, voice.
+**Coming next:** roles and permissions, image uploads, reactions, voice.
 
 ## Tech
 
@@ -30,10 +32,11 @@ A place for your people. Cove is a real-time chat app: create servers, invite fr
 
 1. Open your Supabase project → **SQL Editor** → **New query**
 2. Paste in all of `supabase/schema.sql` and click **Run**
-3. Go to **Authentication → URL Configuration**:
+3. New query again: paste in `supabase/002_friends_dms.sql` and click **Run** (adds friends + DMs)
+4. Go to **Authentication → URL Configuration**:
    - **Site URL:** `https://langluaa.github.io/cove/`
    - **Redirect URLs:** add `https://langluaa.github.io/cove/` and `http://localhost:5173/`
-4. Optional, for easier testing: **Authentication → Sign In / Providers → Email** → turn off **Confirm email**
+5. Optional, for easier testing: **Authentication → Sign In / Providers → Email** → turn off **Confirm email**
 
 ### 2. Hosting (one time)
 

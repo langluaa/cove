@@ -16,7 +16,11 @@ function dayLabel(d) {
 }
 const timeLabel = (d) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
 
-export default function Chat({ channel, user, memberMap, isOwner, notify }) {
+// source = { table, column, id, label, introTitle, introText, introIcon }
+// e.g. server channel: { table: 'messages', column: 'channel_id', ... }
+//      DM:             { table: 'dm_messages', column: 'dm_id', ... }
+export default function Chat({ source, user, memberMap, isOwner, notify }) {
+  const { table, column, id: sourceId } = source
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [hasMore, setHasMore] = useState(false)
@@ -40,9 +44,9 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
     let cancelled = false
     ;(async () => {
       const { data, error } = await supabase
-        .from('messages')
+        .from(table)
         .select(`*, author:profiles(${AUTHOR_FIELDS})`)
-        .eq('channel_id', channel.id)
+        .eq(column, sourceId)
         .order('created_at', { ascending: false })
         .limit(PAGE)
       if (cancelled) return
@@ -55,15 +59,15 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
     return () => {
       cancelled = true
     }
-  }, [channel.id, notify])
+  }, [table, column, sourceId, notify])
 
   // Live updates
   useEffect(() => {
     const ch = supabase
-      .channel('cove-messages-' + channel.id)
+      .channel('cove-' + table + '-' + sourceId)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: 'channel_id=eq.' + channel.id },
+        { event: 'INSERT', schema: 'public', table, filter: `${column}=eq.${sourceId}` },
         async (p) => {
           const msg = await withAuthor(p.new)
           setMessages((ms) => (ms.some((m) => m.id === msg.id) ? ms : [...ms, msg]))
@@ -71,28 +75,28 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'messages', filter: 'channel_id=eq.' + channel.id },
+        { event: 'UPDATE', schema: 'public', table, filter: `${column}=eq.${sourceId}` },
         (p) =>
           setMessages((ms) =>
             ms.map((m) => (m.id === p.new.id ? { ...m, content: p.new.content, edited_at: p.new.edited_at } : m)),
           ),
       )
       // Delete events can't be filtered by column, so match on id.
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, (p) =>
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table }, (p) =>
         setMessages((ms) => ms.filter((m) => m.id !== p.old.id)),
       )
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [channel.id, withAuthor])
+  }, [table, column, sourceId, withAuthor])
 
   async function loadOlder() {
     if (!messages.length) return
     const el = scrollRef.current
     restoreFrom.current = el ? el.scrollHeight - el.scrollTop : null
     const { data, error } = await supabase
-      .from('messages')
+      .from(table)
       .select(`*, author:profiles(${AUTHOR_FIELDS})`)
-      .eq('channel_id', channel.id)
+      .eq(column, sourceId)
       .lt('created_at', messages[0].created_at)
       .order('created_at', { ascending: false })
       .limit(PAGE)
@@ -121,8 +125,8 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
   async function send(text) {
     stickToBottom.current = true
     const { data, error } = await supabase
-      .from('messages')
-      .insert({ channel_id: channel.id, author_id: user.id, content: text })
+      .from(table)
+      .insert({ [column]: sourceId, author_id: user.id, content: text })
       .select(`*, author:profiles(${AUTHOR_FIELDS})`)
       .single()
     if (error) {
@@ -135,7 +139,7 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
 
   async function saveEdit(id, text) {
     const { data, error } = await supabase
-      .from('messages')
+      .from(table)
       .update({ content: text })
       .eq('id', id)
       .select('id, content, edited_at')
@@ -147,7 +151,7 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
 
   async function remove(id) {
     if (!window.confirm('Delete this message?')) return
-    const { error } = await supabase.from('messages').delete().eq('id', id)
+    const { error } = await supabase.from(table).delete().eq('id', id)
     if (error) return notify(error.message)
     setMessages((ms) => ms.filter((m) => m.id !== id))
   }
@@ -182,9 +186,9 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
               </div>
             ) : (
               <div className="channel-intro">
-                <div className="intro-hash">#</div>
-                <h3>Welcome to #{channel.name}</h3>
-                <p className="muted">This is the very start of the channel.</p>
+                <div className="intro-hash">{source.introIcon}</div>
+                <h3>{source.introTitle}</h3>
+                <p className="muted">{source.introText}</p>
               </div>
             )}
             {rows.map((r) =>
@@ -211,7 +215,7 @@ export default function Chat({ channel, user, memberMap, isOwner, notify }) {
           </>
         )}
       </div>
-      <Composer channelName={channel.name} onSend={send} />
+      <Composer label={source.label} onSend={send} />
     </section>
   )
 }
@@ -321,7 +325,7 @@ function EditBox({ initial, onCancel, onSave }) {
   )
 }
 
-function Composer({ channelName, onSend }) {
+function Composer({ label, onSend }) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const ref = useRef(null)
@@ -344,7 +348,7 @@ function Composer({ channelName, onSend }) {
         rows={1}
         value={text}
         maxLength={2000}
-        placeholder={`Message #${channelName}`}
+        placeholder={`Message ${label}`}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
